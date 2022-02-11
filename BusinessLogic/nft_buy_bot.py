@@ -1,5 +1,7 @@
 import time
+import traceback
 
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -41,45 +43,49 @@ success_paid_xpath = "//div[@class='css-57wjep']"
 
 payment_failed_xpath = "//h6[contains(text(), 'Payment failed')]"
 
-def availability(sold_out, buy_now):
-    # print(input("Check availability:"))
-    print(buy_now)
 
-    try:
+def availability():
+    # print(input("Check availability:"))
+
+    WebDriverWait(all_page.driver, 5).until(EC.visibility_of_element_located((By.XPATH, "//div[normalize-space()='Token ID']")))
+    buy_now = all_page.driver.find_elements(By.XPATH, "//button[contains(text(), 'Buy Now')]")
+    print('found' + str(len(buy_now)))
+    sold_out = all_page.driver.find_elements(By.XPATH, "//button[contains(text(), 'Sold Out')]")
+    if len(buy_now) == 1:
         all_page.test_click_buy_now()
         print("clicked buy now")
         print("checking availability")
         print("going to eligibility")
         eligibility()
-    except:
+    elif len(sold_out) == 1:
         print("sold out")
 
 
 def eligibility():
-    try:
-        print("eligibility passed")
-        all_page.test_click_confirm_button()
-        after_payment()
-    except:
+    time.sleep(0.5)
+    dont_enough = all_page.driver.find_elements(By.XPATH, "//button[contains(text(), 'have enough crypto')]")
+    if len(dont_enough) == 1:
         print("eligibility failed")
+    else:
+        all_page.test_click_confirm_button()
+        print("eligibility passed")
+        after_payment()
 
 
 def after_payment():
     try:
         print("checking status")
-        if WebDriverWait(all_page.driver, 5).until(EC.visibility_of_element_located((By.XPATH, success_paid_xpath))):
-            print("payment successful")
-    except:
+        WebDriverWait(all_page.driver, 5).until(EC.visibility_of_element_located((By.XPATH, success_paid_xpath)))
+        print("payment successful")
+    except NoSuchElementException:
         print("payment failed")
         all_page.test_click_return_button()
         try:
             all_page.test_click_buy_now()
-            print("clicked buy now")
-            print("checking availability")
+            all_page.test_click_confirm_button()
             print("going to eligibility")
-        except:
-            print("sold out")
-        all_page.test_click_confirm_button()
+        except NoSuchElementException:
+            print(traceback.format_exc())
 
 
 def ok_button():
@@ -98,24 +104,6 @@ def switch_tab_to_single_nft(driver):
 
     if driver.window_handles[1] == window_after:
         driver.switch_to.window(window_after)
-    #
-    #     # print(input("Change NFT for tasting :"))
-    #     # all_page.driver.get("https://www.binance.com/en/nft/goods/detail?productId=23911067&isProduct=1")
-    #     # print(input("Close Tab :"))
-    #
-    #     if all_page.driver.find_elements_by_xpath(sold_out_xpath):
-    #         print("NFT sold out go bach to search")
-    #         # print(input("Find the Sold out button :"))
-    #         driver.close()
-    #         driver.switch_to.window(window_before)
-    #
-    #     else:
-    #         print(" I am buying")
-    #         all_page.test_click_confirm_button()
-    #
-    #
-    #         after_payment(success, payment_failed)
-
         print("going to availability")
 
         availability()
@@ -137,7 +125,7 @@ buying_start_time = time.time()
 
 for idx in range(6000):
     search_loop_start_time = time.time()
-    nft_xpath = "//body/div[@id='__APP']/div[@class='css-1vvpahx']/div[@class='css-tq0shg']/main[@class='css-1wr4jig']/div[@class='css-37nf1f']/div[@class='css-7mtbla']/div[@class='css-1c5bfos']/div[@class='css-vurnku']/div[@class='css-dp93ju']/a"
+    nft_xpath = "//div[@class = 'css-dp93ju']//div[@class = 'css-vurnku']//a"
     nft_list = all_page.driver.find_elements(By.XPATH, nft_xpath)
 
     # try:
