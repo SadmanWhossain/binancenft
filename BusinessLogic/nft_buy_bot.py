@@ -60,7 +60,6 @@ def availability():
     elif len(sold_out) == 1:
         print("sold out")
 
-
 def eligibility():
     time.sleep(0.5)
     dont_enough = all_page.driver.find_elements(By.XPATH, "//button[contains(text(), 'have enough crypto')]")
@@ -173,5 +172,6 @@ EndTime = time.time()
 print("\nThis Script End " + time.ctime())
 totalRunningTime = EndTime - StartTime
 print("This Script is running for " + str(int(totalRunningTime)) + " Second. or\n")
+print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 
